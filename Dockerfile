@@ -1,11 +1,12 @@
 FROM oven/bun:1-alpine
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
 COPY . .
 
-ENV NODE_ENV=production
 USER bun
-CMD ["bun", "run", "src/index.ts"]
+CMD ["bun", "start"]

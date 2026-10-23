@@ -10,13 +10,18 @@
   "private": true,
   "scripts": {
     "typecheck": "bun check",
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "db:new-migrate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
+    "start": "bunx drizzle-kit migrate && printf \"\\n\" && bun run src/index.ts"
   },
   "type": "module",
   "dependencies": {
+    "drizzle-kit": "^0.31.11",
     "drizzle-orm": "^0.45.4",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.13.13",
-    "http-status-codes": "^2.3.0"
+    "http-status-codes": "^2.3.0",
+    "pg": "^8.23.1"
   }
 }
