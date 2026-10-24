@@ -15,6 +15,13 @@
       "when": 1792793214066,
       "tag": "0001_mute_doorman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792855303449,
+      "tag": "0002_tense_karnak",
+      "breakpoints": true
     }
   ]
 }

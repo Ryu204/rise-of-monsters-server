@@ -5,6 +5,8 @@ import { prettyJSON } from "hono/pretty-json";
 import { cors } from "hono/cors";
 import { StatusCodes } from "http-status-codes";
 import { gameRouter } from "./routes/game";
+import { IS_PROD } from "./config";
+import { authRouter } from "./routes/auth";
 
 type AllowedOrigin =
   | { isProd: false; port: number }
@@ -54,6 +56,7 @@ function onNotFound(c: Context) {
 function apiRouter() {
   const api = new Hono();
   api.route("/games", gameRouter);
+  api.route("/auth", authRouter);
   return api;
 }
 
@@ -96,15 +99,15 @@ function cleanup<T>(server: Server<T>) {
 }
 
 function main() {
-  const isProd = process.env.NODE_ENV == "production";
   const host = process.env.SERVE_HOST as string;
   const port = Number(process.env.SERVE_PORT);
-  const app = createApp({ isProd, host, port });
+  const app = createApp({ isProd: IS_PROD, host, port });
   const server = serve({
     fetch: app.fetch,
     port,
   });
   console.log(`Serving at ${host}:${port}`);
+  console.log(`Build configuration: ${IS_PROD ? "production" : "development"}`);
   process.on("SIGTERM", () => cleanup(server));
   process.on("SIGINT", () => cleanup(server));
 }

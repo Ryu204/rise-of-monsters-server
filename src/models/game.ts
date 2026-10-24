@@ -8,4 +8,4 @@ export const gameTable = pgTable("games", {
 
 export const newGameSchema = createInsertSchema(gameTable);
 
-export type Game = typeof gameTable.$inferSelect;
+export type GameData = typeof gameTable.$inferSelect;
