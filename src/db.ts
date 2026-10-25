@@ -1,5 +1,4 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { databaseUrlFromEnv } from "../database";
+import { databaseUrlFromEnv } from "./dbHelper";
 
-const databaseUrl = databaseUrlFromEnv();
-export const database = drizzle(databaseUrl);
+export const database = drizzle(databaseUrlFromEnv());

@@ -1,5 +1,5 @@
 import { defineConfig } from "drizzle-kit";
-import { databaseUrlFromEnv } from "./database";
+import { databaseUrlFromEnv } from "./src/dbHelper";
 
 export default defineConfig({
   dialect: "postgresql",

@@ -1,27 +1,54 @@
+import { StatusCodes } from "http-status-codes";
 import { IS_PROD } from "./config";
 
 export type VerificationError = {
   reason: "invalid";
   field: "username" | "name" | "password";
+  status: StatusCodes.BAD_REQUEST;
 };
 export function VerificationError(
   field: VerificationError["field"],
 ): VerificationError {
-  return { reason: "invalid", field };
+  return { reason: "invalid", field, status: StatusCodes.BAD_REQUEST };
 }
-export const UsernameExistsError = { reason: "username exists" } as const;
+
+export const UsernameExistsError = {
+  reason: "username exists",
+  status: StatusCodes.BAD_REQUEST,
+} as const;
 export type UsernameExistsError = typeof UsernameExistsError;
-export type InternalError = { reason: "internal error" };
+
+export type InternalError = {
+  reason: "internal error";
+  status: StatusCodes.INTERNAL_SERVER_ERROR;
+};
 export function InternalError(message?: unknown): InternalError {
-  return { reason: "internal error", ...(IS_PROD ? {} : { message }) };
+  return {
+    reason: "internal error",
+    status: StatusCodes.INTERNAL_SERVER_ERROR,
+    ...(IS_PROD ? {} : { message }),
+  };
 }
+
+export type ParseError = { message: unknown; status: StatusCodes.BAD_REQUEST };
+export function ParseError(message: unknown): ParseError {
+  return { message, status: StatusCodes.BAD_REQUEST };
+}
+
 export type SignupError =
   | ParseError
   | VerificationError
   | UsernameExistsError
   | InternalError;
 
-export type ParseError = { message: unknown };
-export function ParseError(message: unknown): ParseError {
-  return { message };
-}
+export const WrongCredentialsError = {
+  reason: "Wrong credentials",
+  status: StatusCodes.UNAUTHORIZED,
+} as const;
+export type WrongCredentialsError = typeof WrongCredentialsError;
+
+export type LoginError =
+  | ParseError
+  | VerificationError
+  | WrongCredentialsError
+  | InternalError;

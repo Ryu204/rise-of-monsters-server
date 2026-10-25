@@ -8,8 +8,8 @@ import {
   Result,
   ResultAsync,
 } from "neverthrow";
-import type { ZodError, ZodSafeParseResult } from "zod";
-import { ParseError, type InternalError } from "./error";
+import type { ZodSafeParseResult } from "zod";
+import { ParseError } from "./error";
 
 /** @description Helper method to convert Err of the same error type */
 export function resErr<T, E, OldT>(input: Err<OldT, E>): Err<T, E> {
