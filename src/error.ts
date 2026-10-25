@@ -52,3 +52,11 @@ export type LoginError =
   | VerificationError
   | WrongCredentialsError
   | InternalError;
+
+export const UnauthorizedError = {
+  reason: "Unauthorized",
+  status: StatusCodes.UNAUTHORIZED,
+} as const;
+export type UnauthorizedError = typeof UnauthorizedError;
+
+export type GetGameError = ParseError | UnauthorizedError | InternalError;

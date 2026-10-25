@@ -34,15 +34,21 @@ export const InsertedUser = createInsertSchema(userTable, {
   });
 export const LoggingInUser = InsertedUser.omit({ name: true });
 export const SelectedUser = createSelectSchema(userTable);
-export const ResponseUser = SelectedUser.omit({ hashedPassword: true });
+export const ResponsedUser = SelectedUser.omit({ hashedPassword: true });
+export const LoggedInUser = ResponsedUser.extend({
+  jwt: z.object({
+    accessToken: z.string(),
+    refreshToken: z.string(),
+  }),
+});
 
-export type User = typeof userTable.$inferSelect;
 export type InsertedUser = z.infer<typeof InsertedUser>;
 export type LoggingInUser = z.infer<typeof LoggingInUser>;
 export type SelectedUser = z.infer<typeof SelectedUser>;
 // This does not use z.infer because we do not want the hashed password to ever be sent
-export type ResponseUser = Except<
+export type ResponsedUser = Except<
   SelectedUser,
   "hashedPassword",
   { requireExactProps: true }
 >;
+export type LoggedInUser = z.infer<typeof LoggedInUser>;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test";
 import { createApp } from "../../src/app";
-import { InsertedUser, ResponseUser, userTable } from "../../src/models/user";
+import { InsertedUser, ResponsedUser, userTable } from "../../src/models/user";
 import { database } from "../../src/db";
 import { StatusCodes } from "http-status-codes";
 import type { UsernameExistsError } from "../../src/error";
@@ -11,7 +11,7 @@ const app = createApp({
   port: Number(process.env.SERVE_PORT),
 });
 
-const BASE_URL = "/api/v1/auth";
+const BASE_URL = "/auth";
 
 describe("auth/signup", () => {
   it("should add new user", async () => {
@@ -23,7 +23,7 @@ describe("auth/signup", () => {
 
     expect(response.status).toBe(StatusCodes.CREATED);
 
-    const body = ResponseUser.parse(await response.json());
+    const body = ResponsedUser.parse(await response.json());
     expect(body.id).toBeFinite();
     expect(body.name).toBe("Jane Doe");
     expect(body.username).toBe("janedoe");

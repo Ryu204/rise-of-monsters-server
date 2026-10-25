@@ -2,8 +2,9 @@ import { err, ok, Result, ResultAsync } from "neverthrow";
 import { eq } from "drizzle-orm";
 import type { ReadonlyDeep } from "type-fest";
 import {
+  LoggedInUser,
   LoggingInUser,
-  ResponseUser,
+  ResponsedUser,
   SelectedUser,
   userTable,
   type InsertedUser,
@@ -17,6 +18,10 @@ import {
   type SignupError,
 } from "../error";
 import { convertZod, sequential } from "../utils";
+import { sign } from "hono/jwt";
+import { AUTH_CONFIG } from "../config";
+import { setCookie } from "hono/cookie";
+import type { Context } from "hono";
 
 export namespace AuthService {
   function usernameExists(
@@ -80,9 +85,33 @@ export namespace AuthService {
       );
   }
 
+  function signJwtToken(
+    user: ReadonlyDeep<ResponsedUser>,
+  ): ResultAsync<LoggedInUser, InternalError> {
+    const now = Math.floor(Date.now() / 1000);
+    return ResultAsync.fromPromise(
+      sign(
+        {
+          sub: user.id,
+          iss: AUTH_CONFIG.jwt.iss,
+          exp: now + AUTH_CONFIG.jwt.accessTtl,
+        },
+        AUTH_CONFIG.jwt.secret,
+        AUTH_CONFIG.jwt.algo,
+      ),
+      InternalError,
+    ).map((accessToken) => ({
+      ...user,
+      jwt: {
+        accessToken,
+        refreshToken: "TODO: generate refresh token",
+      },
+    }));
+  }
+
   export function signup(
     newUser: ReadonlyDeep<InsertedUser>,
-  ): ResultAsync<ResponseUser, SignupError> {
+  ): ResultAsync<ResponsedUser, SignupError> {
     return sequential([
       () => verifyUsernameNotExists(newUser.username),
       () => hashPassword(newUser.password),
@@ -90,12 +119,13 @@ export namespace AuthService {
       .andThen(([username, password]) =>
         insertUser(newUser.name, username!, password!),
       )
-      .andThen((user) => convertZod(ResponseUser.safeParse(user)));
+      .andThen((user) => convertZod(ResponsedUser.safeParse(user)));
   }
 
   export function login(
     user: ReadonlyDeep<LoggingInUser>,
-  ): ResultAsync<ResponseUser, LoginError> {
+    c: Context,
+  ): ResultAsync<LoggedInUser, LoginError> {
     return usernameExists(user.username)
       .andThen((result) =>
         result.isOk() ? ok(result.value) : err(WrongCredentialsError),
@@ -106,6 +136,7 @@ export namespace AuthService {
             passwordOk ? ok(selectedUser) : err(WrongCredentialsError),
         ),
       )
-      .andThen((user) => convertZod(ResponseUser.safeParse(user)));
+      .andThen((user) => convertZod(ResponsedUser.safeParse(user)))
+      .andThen(signJwtToken);
   }
 }

@@ -1,10 +1,12 @@
-import type { GameData } from "../models/game";
+import { errAsync, type ResultAsync } from "neverthrow";
+import type { InsertedGame, ResponsedGame } from "../models/game";
+import { UnauthorizedError, type GetGameError } from "../error";
 
 export namespace GameService {
-  export async function getAllActiveGames(): Promise<GameData[]> {
-    return [
-      { id: 0, name: "Nice game" },
-      { id: 24, name: "Bad game" },
-    ];
+  export function getAllActiveGames(
+    offset: number,
+    count: number,
+  ): ResultAsync<ResponsedGame[], GetGameError> {
+    return errAsync(UnauthorizedError);
   }
 }
