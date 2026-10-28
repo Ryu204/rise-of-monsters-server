@@ -59,4 +59,12 @@ export const UnauthorizedError = {
 } as const;
 export type UnauthorizedError = typeof UnauthorizedError;
 
+export const RefreshTokenInvalidError = {
+  reason: "invalid refresh token",
+  status: StatusCodes.UNAUTHORIZED,
+} as const;
+export type RefreshTokenInvalidError = typeof RefreshTokenInvalidError;
+
+export type RotateRefreshTokenError = RefreshTokenInvalidError | InternalError;
+
 export type GetGameError = ParseError | UnauthorizedError | InternalError;

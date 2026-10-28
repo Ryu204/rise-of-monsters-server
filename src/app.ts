@@ -99,6 +99,7 @@ export function createApp({ isProd, host, port }: AppConfig) {
   app.notFound(onNotFound);
   app.route("/api/v1", apiRouter());
   app.route("/auth", authRouter);
+  app.use("/auth/refresh");
   app.route("/", secondaryRouter());
 
   return app;

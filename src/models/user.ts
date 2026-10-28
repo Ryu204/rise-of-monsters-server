@@ -35,12 +35,11 @@ export const InsertedUser = createInsertSchema(userTable, {
 export const LoggingInUser = InsertedUser.omit({ name: true });
 export const SelectedUser = createSelectSchema(userTable);
 export const ResponsedUser = SelectedUser.omit({ hashedPassword: true });
-export const LoggedInUser = ResponsedUser.extend({
-  jwt: z.object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
-  }),
+export const JwtSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
 });
+export const LoggedInUser = ResponsedUser.extend({ jwt: JwtSchema });
 
 export type InsertedUser = z.infer<typeof InsertedUser>;
 export type LoggingInUser = z.infer<typeof LoggingInUser>;
@@ -51,4 +50,5 @@ export type ResponsedUser = Except<
   "hashedPassword",
   { requireExactProps: true }
 >;
+export type JwtSchema = z.infer<typeof JwtSchema>;
 export type LoggedInUser = z.infer<typeof LoggedInUser>;

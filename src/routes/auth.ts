@@ -44,7 +44,7 @@ authRouter.post("/login", async (c) => {
     {
       httpOnly: true,
       secure: true,
-      maxAge: AUTH_CONFIG.jwt.refreshTtl,
+      maxAge: AUTH_CONFIG.jwt.refreshTtl.each,
       sameSite: "Lax",
       path: "/auth",
     },
@@ -52,4 +52,10 @@ authRouter.post("/login", async (c) => {
 
   const responseBody = ResponsedUser.parse(result.value);
   return c.json(responseBody, StatusCodes.OK);
+});
+
+authRouter.post("/refresh", async (c) => {
+  const body = await c.req.json();
+  // TODO: Add parsing, set new token, then add integration test
+  // Please test carefully, I don't even know if this will work
 });
