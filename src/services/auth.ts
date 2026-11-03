@@ -207,7 +207,7 @@ export namespace AuthService {
     return ResultAsync.fromPromise(
       tx
         .update(refreshTokenTable)
-        .set({ consumedAt: now })
+        .set({ revokedAt: now })
         .where(
           and(
             eq(refreshTokenTable.familyId, familyId),
@@ -228,7 +228,7 @@ export namespace AuthService {
     tx: PgTransaction<C, P, T>,
   ): ResultAsync<ReadonlyDeep<SelectedRefreshToken>, RotateRefreshTokenError> {
     return ResultAsync.fromPromise(
-      database
+      tx
         .update(refreshTokenTable)
         .set({ consumedAt: now })
         .where(
