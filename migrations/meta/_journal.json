@@ -29,6 +29,20 @@
       "when": 1792944332468,
       "tag": "0003_daffy_jack_power",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793435778086,
+      "tag": "0004_fancy_sue_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793715534959,
+      "tag": "0005_needy_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

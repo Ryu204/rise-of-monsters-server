@@ -9,6 +9,7 @@ import { secureHeaders } from "hono/secure-headers";
 import { csrf } from "hono/csrf";
 import { jwt, type JwtVariables } from "hono/jwt";
 import { AUTH_CONFIG } from "./config";
+import { HTTPException } from "hono/http-exception";
 
 type AllowedOrigin =
   | { isProd: false; port: number }
@@ -16,9 +17,12 @@ type AllowedOrigin =
 
 function requireAccessToken() {
   return jwt({
-    secret: AUTH_CONFIG.jwt.secret,
+    secret: AUTH_CONFIG.jwt.secret.token,
     alg: AUTH_CONFIG.jwt.algo,
-    cookie: AUTH_CONFIG.jwt.cookieAccessToken,
+    cookie: {
+      key: AUTH_CONFIG.jwt.cookieAccessToken,
+      secret: AUTH_CONFIG.jwt.secret.accessTokenCookie,
+    },
     verification: {
       iss: AUTH_CONFIG.jwt.iss,
     },
@@ -44,6 +48,9 @@ function addMiddlewares(app: Hono, allowedOrigin: AllowedOrigin) {
 }
 
 function onAppError(err: Error, c: Context, isProd: boolean) {
+  if (err instanceof HTTPException) {
+    return err.getResponse();
+  }
   console.error(`Unhandled Error: ${err.message}`);
   return c.json(
     {
@@ -72,8 +79,8 @@ function onNotFound(c: Context) {
 
 function apiRouter() {
   const api = new Hono<{ Variables: JwtVariables }>();
-  api.route("/game", gameRouter);
   api.use("*", requireAccessToken());
+  api.route("/game", gameRouter);
   return api;
 }
 
@@ -99,7 +106,6 @@ export function createApp({ isProd, host, port }: AppConfig) {
   app.notFound(onNotFound);
   app.route("/api/v1", apiRouter());
   app.route("/auth", authRouter);
-  app.use("/auth/refresh");
   app.route("/", secondaryRouter());
 
   return app;

@@ -1,0 +1,1 @@
+ALTER TABLE "refreshTokens" DROP CONSTRAINT "refreshTokens_familyId_unique";

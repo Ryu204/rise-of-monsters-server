@@ -60,11 +60,11 @@ export const UnauthorizedError = {
 export type UnauthorizedError = typeof UnauthorizedError;
 
 export const RefreshTokenInvalidError = {
-  reason: "invalid refresh token",
+  reason: "Invalid credentials",
   status: StatusCodes.UNAUTHORIZED,
 } as const;
 export type RefreshTokenInvalidError = typeof RefreshTokenInvalidError;
 
 export type RotateRefreshTokenError = RefreshTokenInvalidError | InternalError;
 
-export type GetGameError = ParseError | UnauthorizedError | InternalError;
+export type GetGameError = ParseError | InternalError;

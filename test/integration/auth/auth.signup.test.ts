@@ -1,17 +1,13 @@
 import { describe, it, expect } from "bun:test";
-import { createApp } from "../../src/app";
-import { InsertedUser, ResponsedUser, userTable } from "../../src/models/user";
-import { database } from "../../src/db";
 import { StatusCodes } from "http-status-codes";
-import type { UsernameExistsError } from "../../src/error";
+import { InsertedUser, ResponsedUser, userTable } from "@src/models/user";
+import { database } from "@src/db";
+import type { UsernameExistsError } from "@src/error";
+import { createTestApp } from "../testHelper";
 
-const app = createApp({
-  isProd: false,
-  host: process.env.SERVE_HOST!,
-  port: Number(process.env.SERVE_PORT),
-});
+const app = createTestApp();
 
-const BASE_URL = "/auth";
+const BASE_URL = "/auth/signup";
 
 describe("auth/signup", () => {
   it("should add new user", async () => {
@@ -57,10 +53,11 @@ describe("auth/signup", () => {
   });
 });
 
-async function signupOneUser(
+export async function signupOneUser(
   user: Partial<Readonly<InsertedUser>>,
+  appOverride?: typeof app,
 ): Promise<Response> {
-  return await app.request(`${BASE_URL}/signup`, {
+  return await (appOverride ?? app).request(BASE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

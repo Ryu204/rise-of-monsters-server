@@ -1,4 +1,4 @@
-import { errAsync, type ResultAsync } from "neverthrow";
+import { errAsync, okAsync, type ResultAsync } from "neverthrow";
 import type { InsertedGame, ResponsedGame } from "../models/game";
 import { UnauthorizedError, type GetGameError } from "../error";
 
@@ -7,6 +7,6 @@ export namespace GameService {
     offset: number,
     count: number,
   ): ResultAsync<ResponsedGame[], GetGameError> {
-    return errAsync(UnauthorizedError);
+    return okAsync([]);
   }
 }

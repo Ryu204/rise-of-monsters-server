@@ -9,9 +9,23 @@ COPY . .
 USER bun
 CMD ["bun", "start"]
 
+FROM base AS development
+ENV NODE_ENV=development
+RUN bun install --frozen-lockfile
+COPY . .
+USER bun
+CMD ["bun", "start"]
+
 FROM base AS test
 ENV NODE_ENV=test
 RUN bun install --frozen-lockfile
 COPY . .
 USER bun
 CMD ["bun", "integration-test"]
+
+FROM base AS debug-test
+ENV NODE_ENV=test
+RUN bun install --frozen-lockfile
+COPY . .
+USER bun
+CMD ["bun", "debug:integration-test"]

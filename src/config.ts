@@ -25,9 +25,13 @@ export const AUTH_CONFIG = {
     accessTtl: 10 * 60,
     refreshTtl: {
       each: 2 * 7 * 24 * 60 * 60,
-      family: 20 * 7 * 24 * 60 * 60,
+      family: 30 * 24 * 60 * 60,
     },
-    secret: process.env.JWT_SECRET!,
+    secret: {
+      token: process.env.JWT_SECRET!,
+      accessTokenCookie: process.env.JWT_ACCESS_TOKEN_SECRET!,
+      refreshTokenCookie: process.env.JWT_REFRESH_TOKEN_SECRET!,
+    },
     algo: "HS256" as SignatureAlgorithm,
     cookieAccessToken: "access_token",
     cookieRefreshToken: "refresh_token",

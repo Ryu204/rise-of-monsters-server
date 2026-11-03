@@ -10,7 +10,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 export const refreshTokenTable = pgTable("refreshTokens", {
   tokenHash: varchar({ length: AUTH_CONFIG.jwt.hashLength }).primaryKey(),
-  familyId: uuid().unique().notNull(),
+  familyId: uuid().notNull(),
   userId: integer().notNull(),
   expiresAt: timestamp().notNull(),
   familyExpiresAt: timestamp().notNull(),

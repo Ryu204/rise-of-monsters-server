@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomBytes, randomUUID, hash } from "node:crypto";
 import { err, ok, okAsync, Result, ResultAsync } from "neverthrow";
 import {
   and,
@@ -8,9 +8,9 @@ import {
   isNull,
   type TablesRelationalConfig,
 } from "drizzle-orm";
+import type { PgQueryResultHKT, PgTransaction } from "drizzle-orm/pg-core";
 import type { ReadonlyDeep } from "type-fest";
 import { sign } from "hono/jwt";
-import type { Context } from "hono";
 import {
   JwtSchema,
   LoggedInUser,
@@ -36,7 +36,6 @@ import {
   refreshTokenTable,
   SelectedRefreshToken,
 } from "../models/refreshToken";
-import type { PgQueryResultHKT, PgTransaction } from "drizzle-orm/pg-core";
 
 export namespace AuthService {
   function usernameExists(
@@ -58,6 +57,14 @@ export namespace AuthService {
     return usernameExists(username).andThen((result) =>
       result.isOk() ? err(UsernameExistsError) : ok(username),
     );
+  }
+
+  function hashToken(token: string): Result<string, InternalError> {
+    try {
+      return ok(hash("sha256", token));
+    } catch (e) {
+      return err(InternalError(e));
+    }
   }
 
   function hashPassword(password: string): ResultAsync<string, InternalError> {
@@ -110,11 +117,8 @@ export namespace AuthService {
     const randomToken = randomRefreshToken();
     const randomFamilyId = randomUUID();
     const now = Date.now();
-    return ResultAsync.fromPromise(
-      Bun.password.hash(randomToken),
-      InternalError,
-    )
-      .andThen((tokenHash) =>
+    return hashToken(randomToken)
+      .asyncAndThen((tokenHash) =>
         ResultAsync.fromPromise(
           database.insert(refreshTokenTable).values({
             tokenHash,
@@ -142,8 +146,9 @@ export namespace AuthService {
           sub: userId,
           iss: AUTH_CONFIG.jwt.iss,
           exp: Math.floor(now.getTime() / 1000) + AUTH_CONFIG.jwt.accessTtl,
+          jti: randomUUID(),
         },
-        AUTH_CONFIG.jwt.secret,
+        AUTH_CONFIG.jwt.secret.token,
         AUTH_CONFIG.jwt.algo,
       ),
       InternalError,
@@ -264,10 +269,7 @@ export namespace AuthService {
     const randomToken = randomRefreshToken();
     return consumeRefreshToken(oldTokenHash, now, tx)
       .andThen((oldToken) =>
-        ResultAsync.fromPromise(
-          Bun.password.hash(randomToken),
-          InternalError,
-        ).map(
+        hashToken(randomToken).map(
           (newTokenHash) =>
             [oldToken, newTokenHash] as [
               ReadonlyDeep<SelectedRefreshToken>,
@@ -302,10 +304,7 @@ export namespace AuthService {
     refreshToken: string,
   ): ResultAsync<JwtSchema, RotateRefreshTokenError> {
     const now = new Date();
-    return ResultAsync.fromPromise(
-      Bun.password.hash(refreshToken),
-      InternalError,
-    ).andThen((tokenHash) =>
+    return hashToken(refreshToken).asyncAndThen((tokenHash) =>
       ResultAsync.fromPromise(
         database.transaction(
           async (tx) => await rotateRefreshToken(tokenHash, now, tx),
@@ -337,7 +336,6 @@ export namespace AuthService {
 
   export function login(
     user: ReadonlyDeep<LoggingInUser>,
-    c: Context,
   ): ResultAsync<LoggedInUser, LoginError> {
     return usernameExists(user.username)
       .andThen((result) =>
