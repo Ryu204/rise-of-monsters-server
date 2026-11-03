@@ -11,10 +11,11 @@
   "scripts": {
     "typecheck": "bun check",
     "db:new-migrate": "bunx drizzle-kit generate",
-    "db:migrate": "bunx drizzle-kit migrate",
-    "start": "bunx drizzle-kit migrate && printf \"\\n\" && bun run src/index.ts",
-    "integration-test": " bun test ./test/integration --bail --only-failures --preload ./test/integration/setup.ts",
-    "debug:integration-test": "bun --inspect-wait=0.0.0.0:4000/test test ./test/integration --preload ./test/integration/setup.ts"
+    "db:migrate": "bunx drizzle-kit migrate && printf \"\\n\"",
+    "start": "bun db:migrate && bun run src/index.ts",
+    "integration-test": "bun db:migrate && bun test ./test/integration --bail --only-failures --preload ./test/integration/setup.ts",
+    "debug:integration-test": "bun db:migrate && bun --inspect-wait=0.0.0.0:4000/test test ./test/integration --preload ./test/integration/setup.ts",
+    "job": "bun db:migrate && bun src/jobs"
   },
   "type": "module",
   "dependencies": {

@@ -29,3 +29,17 @@ RUN bun install --frozen-lockfile
 COPY . .
 USER bun
 CMD ["bun", "debug:integration-test"]
+
+FROM base AS job-production
+ENV NODE_ENV=production
+RUN bun install --frozen-lockfile --production
+COPY . .
+USER bun
+CMD ["bun", "job"]
+
+FROM base AS job-development
+ENV NODE_ENV=development
+RUN bun install --frozen-lockfile
+COPY . .
+USER bun
+CMD ["bun", "job"]
